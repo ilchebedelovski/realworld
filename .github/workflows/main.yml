@@ -19,7 +19,5 @@ jobs:
         env:
           FLASK_APP: app/autoapp.py
         run: |
-          apk add --no-cache python-dev g++ libffi-dev
-          apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev
-          pip install -r app/requirements/dev.txt
-          flask test
+          pwd
+          ls -lah
