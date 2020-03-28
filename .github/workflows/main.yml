@@ -14,7 +14,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container: python:3.6.8-alpine
+    
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
       - name: Application testing
         env:
           FLASK_APP: app/autoapp.py
