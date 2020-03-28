@@ -1,0 +1,46 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup
+  namespace: realworld-prod
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: ibedelovski/realworld-backup:0.1.2
+              command:
+                - /bin/sh
+                - /srv/app/backup.sh
+              env:
+                - name: PG_HOST
+                  value: "realworld-prod-postgresql"
+                - name: PG_PORT
+                  value: "5432"
+                - name: PG_USER
+                  value: "postgres"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup
+                      key: pgpassword
+                - name: DB_NAME
+                  value: "realworld"
+                - name: BUCKET_NAME
+                  value: "realworld-backups"
+              volumeMounts:
+                - name: s3config
+                  mountPath: /config
+                - name: data
+                  mountPath: /data
+          volumes:
+            - name: s3config
+              configMap:
+                name: backup
+            - name: data
+              persistentVolumeClaim:
+                claimName: backup
+          restartPolicy: OnFailure

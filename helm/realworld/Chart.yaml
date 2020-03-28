@@ -1,0 +1,10 @@
+apiVersion: v2
+description: A Helm chart for the realworld flask application
+name: realworld
+version: 0.1.0
+
+dependencies:
+- name: postgresql
+  version: "8.6.3"
+  repository: "@stable"
+  condition: postgresql.enabled                              

@@ -1,0 +1,36 @@
+replicaCount: 1
+namespace: realworld
+name: api
+
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  path: /
+  hosts:
+    - ""
+  tls: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+app:
+  environment: ""
+  flaskDebug: "1"
+  conduitSecret: ""
+
+postgresql:
+  enabled: false
+  databaseUrl: ""
+  persistence:
+    size: "1Gi"

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backup-review
+  namespace: realworld-prod
+spec:
+  containers:
+    - name: backup-postgres
+      image: ibedelovski/realworld-backup:0.1.1
+      imagePullPolicy: Always
+      env:
+        - name: PG_HOST
+          value: "realworld-prod-postgresql"
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_USER
+          value: "postgres"
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backup
+              key: pgpassword
+        - name: DB_NAME
+          value: "realworld"
+        - name: BUCKET_NAME
+          value: "realworld-backups"
+      command:
+        - /bin/sh
+        - -c
+        - tail -f /dev/null
+      volumeMounts:
+        - name: s3config
+          mountPath: /config
+        - mountPath: "/data"
+          name: data
+  volumes:
+    - name: s3config
+      configMap:
+        name: backup
+    - name: data
+      persistentVolumeClaim:
+        claimName: backup

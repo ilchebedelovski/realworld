@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "realworld.name" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "realworld.name" . }}
+    env: {{ .Values.app.environment }}
+    chart: {{ template "realworld.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "realworld.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        app: {{ template "realworld.name" . }}
+        release: {{ .Release.Name }}
+        env: {{ .Values.app.environment }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+          env:
+            - name: FLASK_DEBUG
+              value: "{{ .Values.app.flaskDebug }}"
+            - name: CONDUIT_SECRET
+              value: "{{ .Values.app.conduitSecret }}"
+            - name: DATABASE_URL
+              value: "{{ .Values.postgresql.databaseUrl }}"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            tcpSocket:
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          livenessProbe:
+            tcpSocket:
+              port: 5000
+            initialDelaySeconds: 40
+            periodSeconds: 20
+
